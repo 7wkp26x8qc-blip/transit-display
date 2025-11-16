@@ -193,27 +193,71 @@
         }
 
         // -----------------------------
-        // Frequency helper
+        // Headway config (from GTFS)
+        // All hours are 0–23 (24h clock).
+        // minutesBetween is the typical average gap in minutes.
         // -----------------------------
+        const HEADWAY_CONFIG = {
+            weekday: [
+                // Overnight fallback
+                { startHour: 0, endHour: 3, minutesBetween: 22 },
+                // Early morning
+                { startHour: 4, endHour: 4, minutesBetween: 8 },
+                // Main service window
+                { startHour: 5, endHour: 22, minutesBetween: 8 },
+                // Late night
+                { startHour: 23, endHour: 23, minutesBetween: 9 }
+            ],
+            saturday: [
+                { startHour: 0, endHour: 4, minutesBetween: 22 },
+                // 5 AM is less frequent in GTFS (~13 min)
+                { startHour: 5, endHour: 5, minutesBetween: 13 },
+                { startHour: 6, endHour: 22, minutesBetween: 8 },
+                { startHour: 23, endHour: 23, minutesBetween: 9 }
+            ],
+            sunday: [
+                { startHour: 0, endHour: 4, minutesBetween: 22 },
+                { startHour: 5, endHour: 5, minutesBetween: 13 },
+                { startHour: 6, endHour: 22, minutesBetween: 8 },
+                { startHour: 23, endHour: 23, minutesBetween: 9 }
+            ]
+        };
+
+        function getServiceKey(date) {
+            const day = date.getDay(); // 0 = Sun, 6 = Sat
+            if (day === 0) return 'sunday';
+            if (day === 6) return 'saturday';
+            return 'weekday';
+        }
+
+        function getHeadwayMinutesForNow() {
+            const now = new Date();
+            const hour = now.getHours(); // 0–23
+            const key = getServiceKey(now);
+            const rules = HEADWAY_CONFIG[key] || [];
+
+            for (const rule of rules) {
+                if (hour >= rule.startHour && hour <= rule.endHour) {
+                    return rule.minutesBetween;
+                }
+            }
+
+            // fallback if nothing matched
+            return 22;
+        }
+
         function getFrequencyLabel() {
             const now = new Date();
-            const day = now.getDay(); // 0 = Sun, 6 = Sat
-            const hour = now.getHours();
+            const key = getServiceKey(now);
+            const minutes = getHeadwayMinutesForNow();
+            const rounded = Math.round(minutes);
 
-            const isSunday = day === 0;
-            const isSaturday = day === 6;
-            const isWeekday = day >= 1 && day <= 5;
-            const isDaytime = hour >= 7 && hour < 19; // ~7am–7pm
-
-            // Based on MTS/region docs:
-            // - 15-min service Mon–Sat daytime
-            // - 30-min other times & Sundays
-            if ((isWeekday || isSaturday) && isDaytime) {
-                return 'Typically every ~15 minutes (M–Sat daytime)';
-            } else if (isSunday) {
-                return 'Typically every ~30 minutes (Sunday schedule)';
+            if (key === 'weekday') {
+                return `Typically every ~${rounded} minutes (weekday schedule)`;
+            } else if (key === 'saturday') {
+                return `Typically every ~${rounded} minutes (Saturday schedule)`;
             } else {
-                return 'Typically every ~30 minutes (early / late hours)';
+                return `Typically every ~${rounded} minutes (Sunday schedule)`;
             }
         }
 
