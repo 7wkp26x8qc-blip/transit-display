@@ -118,29 +118,11 @@
             color: #ffffff;
         }
 
-        .clock {
-            font-size: 2.7rem;
-            font-weight: 400;
-            color: #cccccc;
-            padding-left: 0.3rem;
-        }
-
         @media (min-width: 900px) {
-            .destination {
-                font-size: 3.8rem;
-            }
-            .flap-minutes {
-                font-size: 7rem;
-            }
-            .flap-min-label {
-                font-size: 2.9rem;
-            }
-            .flap-right {
-                font-size: 2.9rem;
-            }
-            .clock {
-                font-size: 3rem;
-            }
+            .destination { font-size: 3.8rem; }
+            .flap-minutes { font-size: 7rem; }
+            .flap-min-label { font-size: 2.9rem; }
+            .flap-right { font-size: 2.9rem; }
         }
 
         /* BOTTOM GREEN BANNER */
@@ -225,7 +207,6 @@
             }).toLowerCase();
     }
 
-    // Demo data: 2 each
     function getDemoDepartures() {
         return [
             { direction: 'fashion', minutes: 3,  time: timeFromMinutesFromNow(3)  },
@@ -247,7 +228,6 @@
                 <div class="flap-min-label">min</div>
                 <div class="flap-right">${dep.time}</div>
               </div>
-              <div class="clock">${dep.time}</div>
             </div>
           `).join('')}
         </div>
@@ -266,18 +246,15 @@
             .sort((a, b) => a.minutes - b.minutes)
             .slice(0, 2);
 
-        const content = document.getElementById('content');
-        content.innerHTML =
+        document.getElementById('content').innerHTML =
             renderGroup('FASHION VALLEY', fashion) +
             renderGroup('FENTON PARKWAY', fenton);
 
         const banner = document.getElementById('connection-banner');
-        if (fashion.length > 0) {
-            banner.textContent =
-                `Catch the Green Line by ${fashion[0].time} to Hillcrest`;
-        } else {
-            banner.textContent = 'Catch the Green Line to Hillcrest';
-        }
+        banner.textContent =
+            fashion.length > 0
+                ? `Catch the Green Line by ${fashion[0].time} to Hillcrest`
+                : 'Catch the Green Line to Hillcrest';
     }
 
     function updateBoard() {
