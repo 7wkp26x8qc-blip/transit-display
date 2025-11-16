@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MTS Green Line Board">
-    <title>MTS Green Line Board</title>
+    <title>MTS Green Line Board – Split Flap Style</title>
 
     <style>
         * {
@@ -35,67 +35,111 @@
 
         .content {
             flex: 1;
-            padding: 4vh 6vw 2vh 6vw;
+            padding: 4vh 5vw 2vh 5vw;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 6vh;
+            gap: 5vh;
         }
 
         .group {
             display: flex;
             flex-direction: column;
-            gap: 1.8rem;
+            gap: 1.4rem;
         }
 
         .destination {
-            font-size: 3.6rem;
+            font-size: 3.4rem;
             font-weight: 700;
-            letter-spacing: 0.14em;
+            letter-spacing: 0.16em;
         }
 
         .row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 4vw;
+        }
+
+        .flap-block {
             display: flex;
-            gap: 8vw;
+            flex-direction: column;
+            gap: 0.7rem;
         }
 
-        .time-block {
-            min-width: 15rem;
+        .flap {
+            background: #111;
+            border-radius: 0.6rem;
+            border: 1px solid #333;
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.03),
+                0 8px 16px rgba(0, 0, 0, 0.8);
+            padding: 0.9rem 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        .minutes {
-            font-size: 6.6rem;
+        .flap::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0.06),
+                rgba(255, 255, 255, 0.15),
+                rgba(255, 255, 255, 0.06)
+            );
+            opacity: 0.8;
+        }
+
+        .flap-minutes {
+            font-size: 6.2rem;
             font-weight: 700;
+            color: #ffd500;
             line-height: 1;
-            color: #ffd500; /* yellow */
         }
 
-        .min-label {
-            font-size: 3rem;
+        .flap-min-label {
+            font-size: 2.6rem;
             font-weight: 500;
-            margin-left: 0.5rem;
-            color: #ffd500; /* yellow */
+            color: #ffd500;
+            margin-left: 0.2rem;
+        }
+
+        .flap-right {
+            margin-left: auto;
+            font-size: 2.6rem;
+            font-weight: 500;
+            color: #ffffff;
         }
 
         .clock {
-            margin-top: 0.7rem;
-            font-size: 3rem;
+            font-size: 2.7rem;
             font-weight: 400;
-            color: #ffffff;
+            color: #cccccc;
+            padding-left: 0.3rem;
         }
 
         @media (min-width: 900px) {
             .destination {
-                font-size: 4.2rem;
+                font-size: 3.8rem;
             }
-            .minutes {
-                font-size: 7.4rem;
+            .flap-minutes {
+                font-size: 7rem;
             }
-            .min-label {
-                font-size: 3.2rem;
+            .flap-min-label {
+                font-size: 2.9rem;
+            }
+            .flap-right {
+                font-size: 2.9rem;
             }
             .clock {
-                font-size: 3.2rem;
+                font-size: 3rem;
             }
         }
 
@@ -114,7 +158,7 @@
         @media (min-width: 900px) {
             .banner {
                 font-size: 2.6rem;
-                padding: 1.4rem 2rem;
+                padding: 1.3rem 2rem;
             }
         }
 
@@ -129,7 +173,6 @@
         }
     </style>
 </head>
-
 <body>
 <div class="container">
 
@@ -149,7 +192,7 @@
 </div>
 
 <script>
-    // Keep screen awake (optional)
+    // Optional wake lock
     let wakeLock = null;
     async function requestWakeLock() {
         try {
@@ -182,17 +225,34 @@
             }).toLowerCase();
     }
 
-    // --- DEMO DATA: exactly 2 for each direction ---
+    // Demo data: 2 each
     function getDemoDepartures() {
         return [
-            // Fashion Valley (2)
             { direction: 'fashion', minutes: 3,  time: timeFromMinutesFromNow(3)  },
             { direction: 'fashion', minutes: 5,  time: timeFromMinutesFromNow(5)  },
-
-            // Fenton Parkway (2)
-            { direction: 'fenton', minutes: 3,  time: timeFromMinutesFromNow(3)  },
-            { direction: 'fenton', minutes: 11, time: timeFromMinutesFromNow(11) }
+            { direction: 'fenton',  minutes: 3,  time: timeFromMinutesFromNow(3)  },
+            { direction: 'fenton',  minutes: 11, time: timeFromMinutesFromNow(11) }
         ];
+    }
+
+    function renderGroup(title, list) {
+        return `
+      <div class="group">
+        <div class="destination">${title}</div>
+        <div class="row">
+          ${list.map(dep => `
+            <div class="flap-block">
+              <div class="flap">
+                <div class="flap-minutes">${dep.minutes}</div>
+                <div class="flap-min-label">min</div>
+                <div class="flap-right">${dep.time}</div>
+              </div>
+              <div class="clock">${dep.time}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
     }
 
     function renderBoard(departures) {
@@ -207,42 +267,10 @@
             .slice(0, 2);
 
         const content = document.getElementById('content');
+        content.innerHTML =
+            renderGroup('FASHION VALLEY', fashion) +
+            renderGroup('FENTON PARKWAY', fenton);
 
-        const fashionSection = `
-            <div class="group">
-                <div class="destination">FASHION VALLEY</div>
-                <div class="row">
-                    ${fashion.map(dep => `
-                        <div class="time-block">
-                            <div class="minutes">
-                                ${dep.minutes}<span class="min-label">min</span>
-                            </div>
-                            <div class="clock">${dep.time}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-
-        const fentonSection = `
-            <div class="group">
-                <div class="destination">FENTON PARKWAY</div>
-                <div class="row">
-                    ${fenton.map(dep => `
-                        <div class="time-block">
-                            <div class="minutes">
-                                ${dep.minutes}<span class="min-label">min</span>
-                            </div>
-                            <div class="clock">${dep.time}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-
-        content.innerHTML = fashionSection + fentonSection;
-
-        // Banner uses earliest Fashion Valley trip
         const banner = document.getElementById('connection-banner');
         if (fashion.length > 0) {
             banner.textContent =
@@ -253,8 +281,8 @@
     }
 
     function updateBoard() {
-        const departures = getDemoDepartures();
-        renderBoard(departures);
+        const deps = getDemoDepartures();
+        renderBoard(deps);
         updateLastUpdateTime();
     }
 
