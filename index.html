@@ -36,19 +36,13 @@
             background: #1c8c3a;
             color: #ffffff;
             text-align: center;
-            padding: 1.2rem 1.5rem;
-            font-size: 2.2rem;
+            padding: 1.35rem 1.5rem;
+            font-size: 2.4rem;
             font-weight: 500;
-            letter-spacing: 0.03em;
+            letter-spacing: 0.02em;
         }
 
-        @media (min-width: 900px) {
-            .banner {
-                font-size: 2.6rem;
-                padding: 1.4rem 2rem;
-            }
-        }
-
+        /* Main content */
         .content {
             flex: 1;
             padding: 3rem 3rem 1.5rem 3rem;
@@ -68,12 +62,6 @@
             font-size: 3rem;
             font-weight: 700;
             letter-spacing: 0.08em;
-        }
-
-        @media (min-width: 900px) {
-            .destination {
-                font-size: 3.4rem;
-            }
         }
 
         .row {
@@ -104,18 +92,6 @@
             color: #cccccc;
         }
 
-        @media (min-width: 900px) {
-            .minutes {
-                font-size: 5.4rem;
-            }
-            .min-label {
-                font-size: 2.6rem;
-            }
-            .clock {
-                font-size: 2.5rem;
-            }
-        }
-
         .footer {
             padding: 0.6rem 1.5rem 1rem 1.5rem;
             display: flex;
@@ -125,111 +101,98 @@
         }
     </style>
 </head>
+
 <body>
 <div class="container">
+
     <div class="banner" id="connection-banner">
         Catch the Green Line by — to Hillcrest
     </div>
 
     <div class="content" id="content">
-        <!-- Filled by JS -->
+        <!-- JS fills this -->
     </div>
 
     <div class="footer">
         <div id="status">Demo mode (static data)</div>
         <div id="last-update">—</div>
     </div>
+
 </div>
 
 <script>
-    // Optional: best-effort wake lock for iPad
+    // Keep screen awake (optional)
     let wakeLock = null;
     async function requestWakeLock() {
         try {
             if ('wakeLock' in navigator) {
                 wakeLock = await navigator.wakeLock.request('screen');
             }
-        } catch (e) {
-            console.log('Wake Lock not available', e);
-        }
+        } catch (e) {}
     }
     requestWakeLock();
 
-    const UPDATE_INTERVAL = 30000; // 30 seconds
+    const UPDATE_INTERVAL = 30000;
 
-    function formatTimeFromDate(date) {
-        return date.toLocaleTimeString('en-US', {
+    function timeFromMinutesFromNow(minutesFromNow) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + minutesFromNow);
+        return now.toLocaleTimeString('en-US', {
             hour: 'numeric',
             minute: '2-digit',
             hour12: true
         }).toLowerCase();
     }
 
-    function timeFromMinutesFromNow(minutesFromNow) {
-        const now = new Date();
-        now.setMinutes(now.getMinutes() + minutesFromNow);
-        return formatTimeFromDate(now);
-    }
-
     function updateLastUpdateTime() {
         const now = new Date();
         document.getElementById('last-update').textContent =
-            'Updated: ' + formatTimeFromDate(now);
+            'Updated: ' + now.toLocaleTimeString('en-US', {
+                hour: 'numeric', minute: '2-digit', hour12: true
+            }).toLowerCase();
     }
 
     // --- DEMO DATA ---
     function getDemoDepartures() {
-        // Minutes from now for each departure
-        const d1 = 3;
-        const d2 = 14;
-        const d3 = 25;
-
         return [
-            {
-                direction: 'Fashion Valley',
-                directionKey: 'fashion',
-                minutes: d1,
-                time: timeFromMinutesFromNow(d1)
-            },
-            {
-                direction: 'Fashion Valley',
-                directionKey: 'fashion',
-                minutes: d2,
-                time: timeFromMinutesFromNow(d2)
-            },
-            {
-                direction: 'Fenton Parkway',
-                directionKey: 'fenton',
-                minutes: d3,
-                time: timeFromMinutesFromNow(d3)
-            }
+            // Fashion Valley (2)
+            { direction: "fashion", minutes: 3,  time: timeFromMinutesFromNow(3)  },
+            { direction: "fashion", minutes: 14, time: timeFromMinutesFromNow(14) },
+
+            // Fenton Parkway (2)
+            { direction: "fenton", minutes: 7, time: timeFromMinutesFromNow(7) },
+            { direction: "fenton", minutes: 21, time: timeFromMinutesFromNow(21) }
         ];
     }
 
     function renderBoard(departures) {
-        // Next two to Fashion Valley, next one to Fenton
         const fashion = departures
-            .filter(d => d.directionKey === 'fashion')
+            .filter(d => d.direction === "fashion")
             .sort((a, b) => a.minutes - b.minutes)
             .slice(0, 2);
 
         const fenton = departures
-            .filter(d => d.directionKey === 'fenton')
+            .filter(d => d.direction === "fenton")
             .sort((a, b) => a.minutes - b.minutes)
-            .slice(0, 1);
+            .slice(0, 2);
 
-        const content = document.getElementById('content');
+        // Banner uses earliest Fashion Valley trip
+        const banner = document.getElementById("connection-banner");
+        if (fashion.length > 0) {
+            banner.textContent =
+                `Catch the Green Line by ${fashion[0].time} to Hillcrest`;
+        }
 
         // Build HTML
-        const fashionRow = `
+        const content = document.getElementById("content");
+
+        const fashionSection = `
             <div class="group">
                 <div class="destination">FASHION VALLEY</div>
                 <div class="row">
                     ${fashion.map(dep => `
                         <div class="time-block">
-                            <div class="minutes">
-                                ${dep.minutes}<span class="min-label">min</span>
-                            </div>
+                            <div class="minutes">${dep.minutes}<span class="min-label">min</span></div>
                             <div class="clock">${dep.time}</div>
                         </div>
                     `).join('')}
@@ -237,15 +200,13 @@
             </div>
         `;
 
-        const fentonRow = `
+        const fentonSection = `
             <div class="group">
                 <div class="destination">FENTON PARKWAY</div>
                 <div class="row">
                     ${fenton.map(dep => `
                         <div class="time-block">
-                            <div class="minutes">
-                                ${dep.minutes}<span class="min-label">min</span>
-                            </div>
+                            <div class="minutes">${dep.minutes}<span class="min-label">min</span></div>
                             <div class="clock">${dep.time}</div>
                         </div>
                     `).join('')}
@@ -253,27 +214,18 @@
             </div>
         `;
 
-        content.innerHTML = fashionRow + fentonRow;
-
-        // Banner text: use earliest Fashion Valley departure for now.
-        const banner = document.getElementById('connection-banner');
-        if (fashion.length > 0) {
-            banner.textContent =
-                `Catch the Green Line by ${fashion[0].time} for the 120 to Downtown`;
-        } else {
-            banner.textContent = 'Catch the Green Line for the 120 to Downtown';
-        }
+        content.innerHTML = fashionSection + fentonSection;
     }
 
     function updateBoard() {
         const departures = getDemoDepartures();
         renderBoard(departures);
         updateLastUpdateTime();
-        document.getElementById('status').textContent = 'Demo mode (static data)';
     }
 
     updateBoard();
     setInterval(updateBoard, UPDATE_INTERVAL);
 </script>
+
 </body>
 </html>
