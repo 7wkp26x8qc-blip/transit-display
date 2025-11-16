@@ -31,66 +31,92 @@
             min-height: 100vh;
         }
 
-        /* Top green banner */
-        .banner {
-            background: #1c8c3a;
-            color: #ffffff;
-            text-align: center;
-            padding: 1.35rem 1.5rem;
-            font-size: 2.4rem;
-            font-weight: 500;
-            letter-spacing: 0.02em;
-        }
+        /* MAIN CONTENT */
 
-        /* Main content */
         .content {
             flex: 1;
-            padding: 3rem 3rem 1.5rem 3rem;
+            padding: 5vh 6vw 2vh 6vw;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 3rem;
+            gap: 6vh;
         }
 
         .group {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.8rem;
         }
 
         .destination {
-            font-size: 3rem;
+            font-size: 3.6rem;
             font-weight: 700;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.12em;
         }
 
         .row {
             display: flex;
-            gap: 4rem;
+            gap: 8vw;
         }
 
         .time-block {
-            min-width: 12rem;
+            min-width: 16rem;
         }
 
         .minutes {
-            font-size: 4.8rem;
+            font-size: 6.4rem;
             font-weight: 600;
             line-height: 1;
         }
 
         .min-label {
-            font-size: 2.2rem;
+            font-size: 3rem;
             font-weight: 400;
             margin-left: 0.5rem;
         }
 
         .clock {
-            margin-top: 0.6rem;
-            font-size: 2.3rem;
+            margin-top: 0.7rem;
+            font-size: 3rem;
             font-weight: 400;
             color: #cccccc;
         }
+
+        @media (min-width: 900px) {
+            .destination {
+                font-size: 4rem;
+            }
+            .minutes {
+                font-size: 7rem;
+            }
+            .min-label {
+                font-size: 3.2rem;
+            }
+            .clock {
+                font-size: 3.2rem;
+            }
+        }
+
+        /* BOTTOM GREEN BANNER */
+
+        .banner {
+            background: #1c8c3a;
+            color: #ffffff;
+            text-align: center;
+            padding: 1.2rem 1.6rem;
+            font-size: 2.4rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+
+        @media (min-width: 900px) {
+            .banner {
+                font-size: 2.6rem;
+                padding: 1.4rem 2rem;
+            }
+        }
+
+        /* FOOTER STATUS */
 
         .footer {
             padding: 0.6rem 1.5rem 1rem 1.5rem;
@@ -105,12 +131,12 @@
 <body>
 <div class="container">
 
-    <div class="banner" id="connection-banner">
-        Catch the Green Line by — to Hillcrest
+    <div class="content" id="content">
+        <!-- Filled by JS -->
     </div>
 
-    <div class="content" id="content">
-        <!-- JS fills this -->
+    <div class="banner" id="connection-banner">
+        Catch the Green Line by — to Hillcrest
     </div>
 
     <div class="footer">
@@ -148,43 +174,37 @@
         const now = new Date();
         document.getElementById('last-update').textContent =
             'Updated: ' + now.toLocaleTimeString('en-US', {
-                hour: 'numeric', minute: '2-digit', hour12: true
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
             }).toLowerCase();
     }
 
-    // --- DEMO DATA ---
+    // --- DEMO DATA: 2 Fashion + 2 Fenton ---
     function getDemoDepartures() {
         return [
             // Fashion Valley (2)
-            { direction: "fashion", minutes: 3,  time: timeFromMinutesFromNow(3)  },
-            { direction: "fashion", minutes: 14, time: timeFromMinutesFromNow(14) },
+            { direction: 'fashion', minutes: 3,  time: timeFromMinutesFromNow(3)  },
+            { direction: 'fashion', minutes: 14, time: timeFromMinutesFromNow(14) },
 
             // Fenton Parkway (2)
-            { direction: "fenton", minutes: 7, time: timeFromMinutesFromNow(7) },
-            { direction: "fenton", minutes: 21, time: timeFromMinutesFromNow(21) }
+            { direction: 'fenton', minutes: 7,  time: timeFromMinutesFromNow(7)  },
+            { direction: 'fenton', minutes: 21, time: timeFromMinutesFromNow(21) }
         ];
     }
 
     function renderBoard(departures) {
         const fashion = departures
-            .filter(d => d.direction === "fashion")
+            .filter(d => d.direction === 'fashion')
             .sort((a, b) => a.minutes - b.minutes)
             .slice(0, 2);
 
         const fenton = departures
-            .filter(d => d.direction === "fenton")
+            .filter(d => d.direction === 'fenton')
             .sort((a, b) => a.minutes - b.minutes)
             .slice(0, 2);
 
-        // Banner uses earliest Fashion Valley trip
-        const banner = document.getElementById("connection-banner");
-        if (fashion.length > 0) {
-            banner.textContent =
-                `Catch the Green Line by ${fashion[0].time} to Hillcrest`;
-        }
-
-        // Build HTML
-        const content = document.getElementById("content");
+        const content = document.getElementById('content');
 
         const fashionSection = `
             <div class="group">
@@ -192,7 +212,9 @@
                 <div class="row">
                     ${fashion.map(dep => `
                         <div class="time-block">
-                            <div class="minutes">${dep.minutes}<span class="min-label">min</span></div>
+                            <div class="minutes">
+                                ${dep.minutes}<span class="min-label">min</span>
+                            </div>
                             <div class="clock">${dep.time}</div>
                         </div>
                     `).join('')}
@@ -206,7 +228,9 @@
                 <div class="row">
                     ${fenton.map(dep => `
                         <div class="time-block">
-                            <div class="minutes">${dep.minutes}<span class="min-label">min</span></div>
+                            <div class="minutes">
+                                ${dep.minutes}<span class="min-label">min</span>
+                            </div>
                             <div class="clock">${dep.time}</div>
                         </div>
                     `).join('')}
@@ -215,6 +239,15 @@
         `;
 
         content.innerHTML = fashionSection + fentonSection;
+
+        // Banner uses earliest Fashion Valley trip
+        const banner = document.getElementById('connection-banner');
+        if (fashion.length > 0) {
+            banner.textContent =
+                `Catch the Green Line by ${fashion[0].time} to Hillcrest`;
+        } else {
+            banner.textContent = 'Catch the Green Line to Hillcrest';
+        }
     }
 
     function updateBoard() {
