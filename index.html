@@ -39,7 +39,21 @@
             font-size: 5rem;
             font-weight: 300;
             color: #a9a9a9;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stop-name {
+            font-size: 4rem;
+            font-weight: 400;
+            color: #ffffff;
+            margin-bottom: 0.3rem;
+        }
+
+        .frequency {
+            font-size: 1.6rem;
+            font-weight: 300;
+            color: #808080;
+            margin-bottom: 1.5rem;
         }
         
         .subtitle {
@@ -112,7 +126,11 @@
     <div class="container">
         <div class="header">
             <div class="title">MTS Green Line</div>
-            <div class="subtitle">Next departures from Rio Vista</div>
+            <div class="stop-name">Rio Vista</div>
+            <div class="frequency" id="frequency-text">
+                Service about every 15 minutes most of the day
+            </div>
+            <div class="subtitle">Next departures</div>
         </div>
         
         <div class="departures" id="departures">
@@ -128,7 +146,9 @@
     <script>
         console.log('Script loaded');
 
-        // Prevent screen sleep
+        // ----------------------------------------
+        // Wake Lock - keep screen on
+        // ----------------------------------------
         let wakeLock = null;
         async function requestWakeLock() {
             try {
@@ -137,52 +157,58 @@
                     console.log('Wake Lock activated');
                 }
             } catch (err) {
-                console.log('Wake Lock not available');
+                console.log('Wake Lock not available', err);
             }
         }
         requestWakeLock();
 
-        const UPDATE_INTERVAL = 30000;
+        // ----------------------------------------
+        // Config
+        // ----------------------------------------
+        const UPDATE_INTERVAL = 30000; // 30 seconds
 
-        function formatTime(minutesFromNow) {
+        // OneBusAway / SDMTS API
+        const API_BASE = 'https://realtime.sdmts.com/api/api/where';
+        
+        // TODO: request an API key from MTS and paste it here
+        const API_KEY = 'YOUR_API_KEY_HERE';
+
+        // Stop IDs for Rio Vista in each direction
+        // NOTE: You may need to confirm these by looking up the stop IDs in OneBusAway
+        const STOP_RIO_VISTA_TO_FASHION = 'MTS_75052'; // Rio Vista -> Fashion Valley (westbound)
+        const STOP_RIO_VISTA_TO_FENTON  = 'MTS_75053'; // Rio Vista -> Fenton Pkwy / El Cajon (eastbound)
+
+        const USE_DEMO_MODE = !API_KEY || API_KEY === 'YOUR_API_KEY_HERE';
+
+        // ----------------------------------------
+        // Time helpers
+        // ----------------------------------------
+        function formatTimeFromDate(date) {
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            }).toLowerCase();
+        }
+
+        function formatTimeMinutesFromNow(minutesFromNow) {
             const now = new Date();
             now.setMinutes(now.getMinutes() + minutesFromNow);
-            return now.toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
-                minute: '2-digit',
-                hour12: true 
-            }).toLowerCase();
+            return formatTimeFromDate(now);
         }
 
         function updateLastUpdateTime() {
             const now = new Date();
-            document.getElementById('last-update').textContent = 
-                'Updated: ' + now.toLocaleTimeString('en-US', { 
-                    hour: 'numeric', 
-                    minute: '2-digit',
-                    hour12: true 
-                }).toLowerCase();
+            document.getElementById('last-update').textContent =
+                'Updated: ' + formatTimeFromDate(now);
         }
 
-        function fetchDepartures() {
-            console.log('Fetching departures...');
-            
-            // Demo data - all 3 departures
-            const departures = [
-                { direction: 'Fashion Valley', minutes: 9, time: formatTime(9) },
-                { direction: 'Fashion Valley', minutes: 20, time: formatTime(20) },
-                { direction: 'Fenton Parkway', minutes: 31, time: formatTime(31) }
-            ];
-
-            console.log('Departures loaded:', departures);
-            renderDepartures(departures);
-            document.getElementById('status').textContent = 'Demo Mode';
-            updateLastUpdateTime();
-        }
-
+        // ----------------------------------------
+        // Rendering
+        // ----------------------------------------
         function renderDepartures(departures) {
             const container = document.getElementById('departures');
-            
+
             if (!departures || departures.length === 0) {
                 container.innerHTML = '<div class="loading">No departures</div>';
                 return;
@@ -190,23 +216,21 @@
 
             container.innerHTML = departures.map(dep => `
                 <div class="departure">
-                    <div class="destination">${dep.direction}</div>
+                    <div class="destination">${dep.directionLabel}</div>
                     <div class="time-info">
                         <div class="minutes">${dep.minutes} min</div>
                         <div class="clock">${dep.time}</div>
                     </div>
                 </div>
             `).join('');
-            
+
             console.log('Rendered', departures.length, 'departures');
         }
 
-        // Start immediately
-        console.log('Starting app...');
-        fetchDepartures();
-
-        // Update every 30 seconds
-        setInterval(fetchDepartures, UPDATE_INTERVAL);
-    </script>
-</body>
-</html>
+        // ----------------------------------------
+        // Selection: 2 to Fashion, 1 to Fenton
+        // ----------------------------------------
+        function selectPreferredDepartures(allDepartures) {
+            const toFashion = allDepartures
+                .filter(d => d.directionKey === 'toFashionValley')
+                .sort((a, b) => a.minutes - b.minu
