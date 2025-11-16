@@ -22,7 +22,6 @@
             overflow: hidden;
             -webkit-user-select: none;
             user-select: none;
-            -webkit-touch-callout: none;
         }
         
         .container {
@@ -41,7 +40,6 @@
             font-weight: 300;
             color: #a9a9a9;
             margin-bottom: 1rem;
-            letter-spacing: 0.02em;
         }
         
         .subtitle {
@@ -100,10 +98,6 @@
             color: #90ee90;
         }
         
-        .error {
-            color: #ffcc00;
-        }
-        
         .loading {
             display: flex;
             justify-content: center;
@@ -122,19 +116,20 @@
         </div>
         
         <div class="departures" id="departures">
-            <div class="loading">Loading departures...</div>
+            <div class="loading">Loading...</div>
         </div>
         
         <div class="footer">
-            <div id="status" class="status">Connecting...</div>
+            <div id="status" class="status">Initializing...</div>
             <div id="last-update">—</div>
         </div>
     </div>
 
     <script>
+        console.log('Script loaded');
+
         // Prevent screen sleep
         let wakeLock = null;
-
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
@@ -142,19 +137,12 @@
                     console.log('Wake Lock activated');
                 }
             } catch (err) {
-                console.log('Wake Lock error:', err);
+                console.log('Wake Lock not available');
             }
         }
-
-        document.addEventListener('visibilitychange', () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
-                requestWakeLock();
-            }
-        });
-
         requestWakeLock();
 
-        const UPDATE_INTERVAL = 30000; // 30 seconds
+        const UPDATE_INTERVAL = 30000;
 
         function formatTime(minutesFromNow) {
             const now = new Date();
@@ -176,32 +164,27 @@
                 }).toLowerCase();
         }
 
-        async function fetchDepartures() {
-            try {
-                // Mock departure data for demo
-                const departures = [
-                    { direction: 'Fashion Valley', minutes: 9, time: formatTime(9) },
-                    { direction: 'Fashion Valley', minutes: 20, time: formatTime(20) },
-                    { direction: 'Fenton Parkway', minutes: 31, time: formatTime(31) }
-                ];
+        function fetchDepartures() {
+            console.log('Fetching departures...');
+            
+            // Demo data - all 3 departures
+            const departures = [
+                { direction: 'Fashion Valley', minutes: 9, time: formatTime(9) },
+                { direction: 'Fashion Valley', minutes: 20, time: formatTime(20) },
+                { direction: 'Fenton Parkway', minutes: 31, time: formatTime(31) }
+            ];
 
-                renderDepartures(departures);
-                document.getElementById('status').textContent = 'Live';
-                document.getElementById('status').className = 'status';
-                updateLastUpdateTime();
-
-            } catch (error) {
-                console.error('Error fetching departures:', error);
-                document.getElementById('status').textContent = 'Connection Error';
-                document.getElementById('status').className = 'error';
-            }
+            console.log('Departures loaded:', departures);
+            renderDepartures(departures);
+            document.getElementById('status').textContent = 'Demo Mode';
+            updateLastUpdateTime();
         }
 
         function renderDepartures(departures) {
             const container = document.getElementById('departures');
             
-            if (departures.length === 0) {
-                container.innerHTML = '<div class="loading">No upcoming departures</div>';
+            if (!departures || departures.length === 0) {
+                container.innerHTML = '<div class="loading">No departures</div>';
                 return;
             }
 
@@ -214,9 +197,12 @@
                     </div>
                 </div>
             `).join('');
+            
+            console.log('Rendered', departures.length, 'departures');
         }
 
-        // Initial fetch
+        // Start immediately
+        console.log('Starting app...');
         fetchDepartures();
 
         // Update every 30 seconds
