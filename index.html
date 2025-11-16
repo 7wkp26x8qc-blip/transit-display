@@ -35,84 +35,67 @@
 
         .content {
             flex: 1;
-            padding: 4vh 5vw 2vh 5vw;
+            padding: 4vh 6vw 2vh 6vw;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 5vh;
+            gap: 6vh;
         }
 
         .group {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.8rem;
         }
 
         .destination {
-            font-size: 3.4rem;
+            font-size: 3.6rem;
             font-weight: 700;
             letter-spacing: 0.14em;
         }
 
-        .rows {
+        .row {
             display: flex;
-            flex-direction: column;
-            gap: 1.4rem;
+            gap: 8vw;
         }
 
-        .tier-row {
-            display: flex;
-            align-items: baseline;
-            gap: 2.2rem;
-        }
-
-        .tier-label {
-            min-width: 7rem;
-            font-size: 2.1rem;
-            font-weight: 500;
-            letter-spacing: 0.18em;
-            color: #b0b0b0;
-        }
-
-        .tier-time {
-            display: flex;
-            align-items: baseline;
-            gap: 2.4rem;
+        .time-block {
+            min-width: 15rem;
         }
 
         .minutes {
-            font-size: 5.8rem;
-            font-weight: 600;
+            font-size: 6.6rem;
+            font-weight: 700;
             line-height: 1;
+            color: #ffd500; /* yellow */
         }
 
         .min-label {
-            font-size: 2.8rem;
-            font-weight: 400;
-            margin-left: 0.4rem;
+            font-size: 3rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+            color: #ffd500; /* yellow */
         }
 
         .clock {
-            font-size: 2.7rem;
+            margin-top: 0.7rem;
+            font-size: 3rem;
             font-weight: 400;
-            color: #cccccc;
+            color: #ffffff;
         }
 
         @media (min-width: 900px) {
             .destination {
-                font-size: 3.8rem;
-            }
-            .tier-label {
-                font-size: 2.3rem;
+                font-size: 4.2rem;
             }
             .minutes {
-                font-size: 6.4rem;
+                font-size: 7.4rem;
             }
             .min-label {
-                font-size: 3rem;
+                font-size: 3.2rem;
             }
             .clock {
-                font-size: 2.9rem;
+                font-size: 3.2rem;
             }
         }
 
@@ -122,16 +105,16 @@
             background: #1c8c3a;
             color: #ffffff;
             text-align: center;
-            padding: 1.1rem 1.6rem;
-            font-size: 2.3rem;
-            font-weight: 500;
+            padding: 1.2rem 1.6rem;
+            font-size: 2.4rem;
+            font-weight: 600;
             letter-spacing: 0.04em;
         }
 
         @media (min-width: 900px) {
             .banner {
-                font-size: 2.5rem;
-                padding: 1.3rem 2rem;
+                font-size: 2.6rem;
+                padding: 1.4rem 2rem;
             }
         }
 
@@ -199,42 +182,17 @@
             }).toLowerCase();
     }
 
-    // --- DEMO DATA: 2 Fashion + 2 Fenton per direction ---
+    // --- DEMO DATA: exactly 2 for each direction ---
     function getDemoDepartures() {
         return [
-            // Fashion Valley (NOW + SOON)
-            { direction: 'fashion', minutes: 2,  time: timeFromMinutesFromNow(2)  },
-            { direction: 'fashion', minutes: 11, time: timeFromMinutesFromNow(11) },
+            // Fashion Valley (2)
+            { direction: 'fashion', minutes: 3,  time: timeFromMinutesFromNow(3)  },
+            { direction: 'fashion', minutes: 5,  time: timeFromMinutesFromNow(5)  },
 
-            // Fenton Parkway (NOW + SOON)
-            { direction: 'fenton', minutes: 5,  time: timeFromMinutesFromNow(5)  },
-            { direction: 'fenton', minutes: 16, time: timeFromMinutesFromNow(16) }
+            // Fenton Parkway (2)
+            { direction: 'fenton', minutes: 3,  time: timeFromMinutesFromNow(3)  },
+            { direction: 'fenton', minutes: 11, time: timeFromMinutesFromNow(11) }
         ];
-    }
-
-    function renderDirectionBlock(title, items) {
-        const labels = ['NOW', 'SOON'];
-
-        const rowsHtml = items.map((dep, index) => `
-            <div class="tier-row">
-                <div class="tier-label">${labels[index] || ''}</div>
-                <div class="tier-time">
-                    <div class="minutes">
-                        ${dep.minutes}<span class="min-label">min</span>
-                    </div>
-                    <div class="clock">${dep.time}</div>
-                </div>
-            </div>
-        `).join('');
-
-        return `
-            <div class="group">
-                <div class="destination">${title}</div>
-                <div class="rows">
-                    ${rowsHtml}
-                </div>
-            </div>
-        `;
     }
 
     function renderBoard(departures) {
@@ -250,10 +208,39 @@
 
         const content = document.getElementById('content');
 
-        const fashionBlock = renderDirectionBlock('FASHION VALLEY', fashion);
-        const fentonBlock  = renderDirectionBlock('FENTON PARKWAY', fenton);
+        const fashionSection = `
+            <div class="group">
+                <div class="destination">FASHION VALLEY</div>
+                <div class="row">
+                    ${fashion.map(dep => `
+                        <div class="time-block">
+                            <div class="minutes">
+                                ${dep.minutes}<span class="min-label">min</span>
+                            </div>
+                            <div class="clock">${dep.time}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
 
-        content.innerHTML = fashionBlock + fentonBlock;
+        const fentonSection = `
+            <div class="group">
+                <div class="destination">FENTON PARKWAY</div>
+                <div class="row">
+                    ${fenton.map(dep => `
+                        <div class="time-block">
+                            <div class="minutes">
+                                ${dep.minutes}<span class="min-label">min</span>
+                            </div>
+                            <div class="clock">${dep.time}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        content.innerHTML = fashionSection + fentonSection;
 
         // Banner uses earliest Fashion Valley trip
         const banner = document.getElementById('connection-banner');
