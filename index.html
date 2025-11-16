@@ -120,6 +120,10 @@
             font-size: 3rem;
             color: #666;
         }
+
+        .error {
+            color: #ff6b6b;
+        }
     </style>
 </head>
 <body>
@@ -146,9 +150,7 @@
     <script>
         console.log('Script loaded');
 
-        // ----------------------------------------
-        // Wake Lock - keep screen on
-        // ----------------------------------------
+        // Wake Lock - keep screen on (best effort)
         let wakeLock = null;
         async function requestWakeLock() {
             try {
@@ -162,27 +164,11 @@
         }
         requestWakeLock();
 
-        // ----------------------------------------
-        // Config
-        // ----------------------------------------
         const UPDATE_INTERVAL = 30000; // 30 seconds
 
-        // OneBusAway / SDMTS API
-        const API_BASE = 'https://realtime.sdmts.com/api/api/where';
-        
-        // TODO: request an API key from MTS and paste it here
-        const API_KEY = 'YOUR_API_KEY_HERE';
-
-        // Stop IDs for Rio Vista in each direction
-        // NOTE: You may need to confirm these by looking up the stop IDs in OneBusAway
-        const STOP_RIO_VISTA_TO_FASHION = 'MTS_75052'; // Rio Vista -> Fashion Valley (westbound)
-        const STOP_RIO_VISTA_TO_FENTON  = 'MTS_75053'; // Rio Vista -> Fenton Pkwy / El Cajon (eastbound)
-
-        const USE_DEMO_MODE = !API_KEY || API_KEY === 'YOUR_API_KEY_HERE';
-
-        // ----------------------------------------
+        // -----------------------------
         // Time helpers
-        // ----------------------------------------
+        // -----------------------------
         function formatTimeFromDate(date) {
             return date.toLocaleTimeString('en-US', {
                 hour: 'numeric',
@@ -199,15 +185,18 @@
 
         function updateLastUpdateTime() {
             const now = new Date();
-            document.getElementById('last-update').textContent =
-                'Updated: ' + formatTimeFromDate(now);
+            const el = document.getElementById('last-update');
+            if (el) {
+                el.textContent = 'Updated: ' + formatTimeFromDate(now);
+            }
         }
 
-        // ----------------------------------------
+        // -----------------------------
         // Rendering
-        // ----------------------------------------
+        // -----------------------------
         function renderDepartures(departures) {
             const container = document.getElementById('departures');
+            if (!container) return;
 
             if (!departures || departures.length === 0) {
                 container.innerHTML = '<div class="loading">No departures</div>';
@@ -227,10 +216,77 @@
             console.log('Rendered', departures.length, 'departures');
         }
 
-        // ----------------------------------------
+        function showError(message) {
+            console.error(message);
+            const container = document.getElementById('departures');
+            const status = document.getElementById('status');
+
+            if (container) {
+                container.innerHTML = `<div class="loading error">${message}</div>`;
+            }
+            if (status) {
+                status.textContent = 'Error';
+                status.classList.remove('status');
+                status.classList.add('error');
+            }
+        }
+
+        // -----------------------------
         // Selection: 2 to Fashion, 1 to Fenton
-        // ----------------------------------------
+        // -----------------------------
         function selectPreferredDepartures(allDepartures) {
             const toFashion = allDepartures
                 .filter(d => d.directionKey === 'toFashionValley')
-                .sort((a, b) => a.minutes - b.minu
+                .sort((a, b) => a.minutes - b.minutes);
+
+            const toFenton = allDepartures
+                .filter(d => d.directionKey === 'toFenton')
+                .sort((a, b) => a.minutes - b.minutes);
+
+            const selected = [];
+            if (toFashion[0]) selected.push(toFashion[0]);
+            if (toFashion[1]) selected.push(toFashion[1]);
+            if (toFenton[0])  selected.push(toFenton[0]);
+
+            return selected;
+        }
+
+        // -----------------------------
+        // Demo data (no API yet)
+        // -----------------------------
+        function getDemoDepartures() {
+            return [
+                { directionLabel: 'Fashion Valley', directionKey: 'toFashionValley', minutes: 3,  time: formatTimeMinutesFromNow(3)  },
+                { directionLabel: 'Fenton Parkway', directionKey: 'toFenton',        minutes: 7,  time: formatTimeMinutesFromNow(7)  },
+                { directionLabel: 'Fashion Valley', directionKey: 'toFashionValley', minutes: 16, time: formatTimeMinutesFromNow(16) },
+                { directionLabel: 'Fenton Parkway', directionKey: 'toFenton',        minutes: 25, time: formatTimeMinutesFromNow(25) }
+            ];
+        }
+
+        // -----------------------------
+        // Main update loop (demo mode)
+        // -----------------------------
+        function updateData() {
+            try {
+                const all = getDemoDepartures();
+                const selected = selectPreferredDepartures(all);
+                renderDepartures(selected);
+
+                const statusEl = document.getElementById('status');
+                if (statusEl) {
+                    statusEl.textContent = 'Demo mode (static data)';
+                    statusEl.classList.add('status');
+                }
+
+                updateLastUpdateTime();
+            } catch (err) {
+                showError('Something went wrong rendering departures.');
+            }
+        }
+
+        console.log('Starting app...');
+        updateData();
+        setInterval(updateData, UPDATE_INTERVAL);
+    </script>
+</body>
+</html>
