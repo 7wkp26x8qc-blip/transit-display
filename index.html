@@ -49,13 +49,6 @@
             margin-bottom: 0.3rem;
         }
 
-        .frequency {
-            font-size: 1.6rem;
-            font-weight: 300;
-            color: #808080;
-            margin-bottom: 1.5rem;
-        }
-        
         .subtitle {
             font-size: 2.5rem;
             font-weight: 300;
@@ -68,12 +61,17 @@
         
         .departure {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
             padding: 2rem 0;
             border-bottom: 1px solid #333;
         }
         
+        .departure-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .destination {
             font-size: 4.5rem;
             font-weight: 300;
@@ -96,6 +94,13 @@
             font-weight: 300;
             color: #808080;
             margin-top: 0.5rem;
+        }
+
+        .freq {
+            margin-top: 1rem;
+            font-size: 1.8rem;
+            color: #808080;
+            font-weight: 300;
         }
         
         .footer {
@@ -131,9 +136,6 @@
         <div class="header">
             <div class="title">MTS Green Line</div>
             <div class="stop-name">Rio Vista</div>
-            <div class="frequency" id="frequency-text">
-                Service about every 15 minutes most of the day
-            </div>
             <div class="subtitle">Next departures</div>
         </div>
         
@@ -150,13 +152,12 @@
     <script>
         console.log('Script loaded');
 
-        // Wake Lock - keep screen on (best effort)
+        // Try to keep the screen awake (best effort)
         let wakeLock = null;
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Wake Lock activated');
                 }
             } catch (err) {
                 console.log('Wake Lock not available', err);
@@ -192,6 +193,31 @@
         }
 
         // -----------------------------
+        // Frequency helper
+        // -----------------------------
+        function getFrequencyLabel() {
+            const now = new Date();
+            const day = now.getDay(); // 0 = Sun, 6 = Sat
+            const hour = now.getHours();
+
+            const isSunday = day === 0;
+            const isSaturday = day === 6;
+            const isWeekday = day >= 1 && day <= 5;
+            const isDaytime = hour >= 7 && hour < 19; // ~7am–7pm
+
+            // Based on MTS/region docs:
+            // - 15-min service Mon–Sat daytime
+            // - 30-min other times & Sundays
+            if ((isWeekday || isSaturday) && isDaytime) {
+                return 'Typically every ~15 minutes (M–Sat daytime)';
+            } else if (isSunday) {
+                return 'Typically every ~30 minutes (Sunday schedule)';
+            } else {
+                return 'Typically every ~30 minutes (early / late hours)';
+            }
+        }
+
+        // -----------------------------
         // Rendering
         // -----------------------------
         function renderDepartures(departures) {
@@ -203,13 +229,18 @@
                 return;
             }
 
+            const freqLabel = getFrequencyLabel();
+
             container.innerHTML = departures.map(dep => `
                 <div class="departure">
-                    <div class="destination">${dep.directionLabel}</div>
-                    <div class="time-info">
-                        <div class="minutes">${dep.minutes} min</div>
-                        <div class="clock">${dep.time}</div>
+                    <div class="departure-top">
+                        <div class="destination">${dep.directionLabel}</div>
+                        <div class="time-info">
+                            <div class="minutes">${dep.minutes} min</div>
+                            <div class="clock">${dep.time}</div>
+                        </div>
                     </div>
+                    <div class="freq">${freqLabel}</div>
                 </div>
             `).join('');
 
@@ -252,14 +283,28 @@
         }
 
         // -----------------------------
-        // Demo data (no API yet)
+        // Demo data (no live API yet)
         // -----------------------------
         function getDemoDepartures() {
             return [
-                { directionLabel: 'Fashion Valley', directionKey: 'toFashionValley', minutes: 3,  time: formatTimeMinutesFromNow(3)  },
-                { directionLabel: 'Fenton Parkway', directionKey: 'toFenton',        minutes: 7,  time: formatTimeMinutesFromNow(7)  },
-                { directionLabel: 'Fashion Valley', directionKey: 'toFashionValley', minutes: 16, time: formatTimeMinutesFromNow(16) },
-                { directionLabel: 'Fenton Parkway', directionKey: 'toFenton',        minutes: 25, time: formatTimeMinutesFromNow(25) }
+                {
+                    directionLabel: 'Fashion Valley',
+                    directionKey: 'toFashionValley',
+                    minutes: 3,
+                    time: formatTimeMinutesFromNow(3)
+                },
+                {
+                    directionLabel: 'Fenton Parkway',
+                    directionKey: 'toFenton',
+                    minutes: 7,
+                    time: formatTimeMinutesFromNow(7)
+                },
+                {
+                    directionLabel: 'Fashion Valley',
+                    directionKey: 'toFashionValley',
+                    minutes: 16,
+                    time: formatTimeMinutesFromNow(16)
+                }
             ];
         }
 
