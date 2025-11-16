@@ -2,380 +2,278 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="MTS Green Line">
-    <title>MTS Green Line - Rio Vista</title>
-    
+    <meta name="apple-mobile-web-app-title" content="MTS Green Line Board">
+    <title>MTS Green Line Board</title>
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
             background: #000;
             color: #fff;
             overflow: hidden;
             -webkit-user-select: none;
             user-select: none;
         }
-        
+
         .container {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            padding: 3rem 4rem;
-        }
-        
-        .header {
-            margin-bottom: 3rem;
-        }
-        
-        .title {
-            font-size: 5rem;
-            font-weight: 300;
-            color: #a9a9a9;
-            margin-bottom: 0.5rem;
         }
 
-        .stop-name {
-            font-size: 4rem;
-            font-weight: 400;
+        /* Top green banner */
+        .banner {
+            background: #1c8c3a;
             color: #ffffff;
-            margin-bottom: 0.3rem;
+            text-align: center;
+            padding: 1.2rem 1.5rem;
+            font-size: 2.2rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
         }
 
-        .subtitle {
-            font-size: 2.5rem;
-            font-weight: 300;
-            color: #808080;
+        @media (min-width: 900px) {
+            .banner {
+                font-size: 2.6rem;
+                padding: 1.4rem 2rem;
+            }
         }
-        
-        .departures {
+
+        .content {
             flex: 1;
-        }
-        
-        .departure {
+            padding: 3rem 3rem 1.5rem 3rem;
             display: flex;
             flex-direction: column;
-            padding: 2rem 0;
-            border-bottom: 1px solid #333;
+            justify-content: center;
+            gap: 3rem;
         }
-        
-        .departure-top {
+
+        .group {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
         .destination {
-            font-size: 4.5rem;
-            font-weight: 300;
-            color: #fff;
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
         }
-        
-        .time-info {
-            text-align: right;
+
+        @media (min-width: 900px) {
+            .destination {
+                font-size: 3.4rem;
+            }
         }
-        
+
+        .row {
+            display: flex;
+            gap: 4rem;
+        }
+
+        .time-block {
+            min-width: 12rem;
+        }
+
         .minutes {
-            font-size: 5.5rem;
-            font-weight: 300;
-            color: #90ee90;
+            font-size: 4.8rem;
+            font-weight: 600;
             line-height: 1;
         }
-        
-        .clock {
-            font-size: 3rem;
-            font-weight: 300;
-            color: #808080;
-            margin-top: 0.5rem;
+
+        .min-label {
+            font-size: 2.2rem;
+            font-weight: 400;
+            margin-left: 0.5rem;
         }
 
-        .freq {
-            margin-top: 1rem;
-            font-size: 1.8rem;
-            color: #808080;
-            font-weight: 300;
+        .clock {
+            margin-top: 0.6rem;
+            font-size: 2.3rem;
+            font-weight: 400;
+            color: #cccccc;
         }
-        
+
+        @media (min-width: 900px) {
+            .minutes {
+                font-size: 5.4rem;
+            }
+            .min-label {
+                font-size: 2.6rem;
+            }
+            .clock {
+                font-size: 2.5rem;
+            }
+        }
+
         .footer {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #1a1a1a;
+            padding: 0.6rem 1.5rem 1rem 1.5rem;
             display: flex;
             justify-content: space-between;
-            font-size: 1.5rem;
-            color: #666;
-        }
-        
-        .status {
-            color: #90ee90;
-        }
-        
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 20rem;
-            font-size: 3rem;
-            color: #666;
-        }
-
-        .error {
-            color: #ff6b6b;
+            font-size: 1.4rem;
+            color: #777;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="title">MTS Green Line</div>
-            <div class="stop-name">Rio Vista</div>
-            <div class="subtitle">Next departures</div>
-        </div>
-        
-        <div class="departures" id="departures">
-            <div class="loading">Loading...</div>
-        </div>
-        
-        <div class="footer">
-            <div id="status" class="status">Initializing...</div>
-            <div id="last-update">—</div>
-        </div>
+<div class="container">
+    <div class="banner" id="connection-banner">
+        Catch the Green Line by — to Hillcrest
     </div>
 
-    <script>
-        console.log('Script loaded');
+    <div class="content" id="content">
+        <!-- Filled by JS -->
+    </div>
 
-        // Try to keep the screen awake (best effort)
-        let wakeLock = null;
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                }
-            } catch (err) {
-                console.log('Wake Lock not available', err);
+    <div class="footer">
+        <div id="status">Demo mode (static data)</div>
+        <div id="last-update">—</div>
+    </div>
+</div>
+
+<script>
+    // Optional: best-effort wake lock for iPad
+    let wakeLock = null;
+    async function requestWakeLock() {
+        try {
+            if ('wakeLock' in navigator) {
+                wakeLock = await navigator.wakeLock.request('screen');
             }
+        } catch (e) {
+            console.log('Wake Lock not available', e);
         }
-        requestWakeLock();
+    }
+    requestWakeLock();
 
-        const UPDATE_INTERVAL = 30000; // 30 seconds
+    const UPDATE_INTERVAL = 30000; // 30 seconds
 
-        // -----------------------------
-        // Time helpers
-        // -----------------------------
-        function formatTimeFromDate(date) {
-            return date.toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-            }).toLowerCase();
-        }
+    function formatTimeFromDate(date) {
+        return date.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        }).toLowerCase();
+    }
 
-        function formatTimeMinutesFromNow(minutesFromNow) {
-            const now = new Date();
-            now.setMinutes(now.getMinutes() + minutesFromNow);
-            return formatTimeFromDate(now);
-        }
+    function timeFromMinutesFromNow(minutesFromNow) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + minutesFromNow);
+        return formatTimeFromDate(now);
+    }
 
-        function updateLastUpdateTime() {
-            const now = new Date();
-            const el = document.getElementById('last-update');
-            if (el) {
-                el.textContent = 'Updated: ' + formatTimeFromDate(now);
+    function updateLastUpdateTime() {
+        const now = new Date();
+        document.getElementById('last-update').textContent =
+            'Updated: ' + formatTimeFromDate(now);
+    }
+
+    // --- DEMO DATA ---
+    function getDemoDepartures() {
+        // Minutes from now for each departure
+        const d1 = 3;
+        const d2 = 14;
+        const d3 = 25;
+
+        return [
+            {
+                direction: 'Fashion Valley',
+                directionKey: 'fashion',
+                minutes: d1,
+                time: timeFromMinutesFromNow(d1)
+            },
+            {
+                direction: 'Fashion Valley',
+                directionKey: 'fashion',
+                minutes: d2,
+                time: timeFromMinutesFromNow(d2)
+            },
+            {
+                direction: 'Fenton Parkway',
+                directionKey: 'fenton',
+                minutes: d3,
+                time: timeFromMinutesFromNow(d3)
             }
-        }
+        ];
+    }
 
-        // -----------------------------
-        // Headway config (from GTFS)
-        // All hours are 0–23 (24h clock).
-        // minutesBetween is the typical average gap in minutes.
-        // -----------------------------
-        const HEADWAY_CONFIG = {
-            weekday: [
-                // Overnight fallback
-                { startHour: 0, endHour: 3, minutesBetween: 22 },
-                // Early morning
-                { startHour: 4, endHour: 4, minutesBetween: 8 },
-                // Main service window
-                { startHour: 5, endHour: 22, minutesBetween: 8 },
-                // Late night
-                { startHour: 23, endHour: 23, minutesBetween: 9 }
-            ],
-            saturday: [
-                { startHour: 0, endHour: 4, minutesBetween: 22 },
-                // 5 AM is less frequent in GTFS (~13 min)
-                { startHour: 5, endHour: 5, minutesBetween: 13 },
-                { startHour: 6, endHour: 22, minutesBetween: 8 },
-                { startHour: 23, endHour: 23, minutesBetween: 9 }
-            ],
-            sunday: [
-                { startHour: 0, endHour: 4, minutesBetween: 22 },
-                { startHour: 5, endHour: 5, minutesBetween: 13 },
-                { startHour: 6, endHour: 22, minutesBetween: 8 },
-                { startHour: 23, endHour: 23, minutesBetween: 9 }
-            ]
-        };
+    function renderBoard(departures) {
+        // Next two to Fashion Valley, next one to Fenton
+        const fashion = departures
+            .filter(d => d.directionKey === 'fashion')
+            .sort((a, b) => a.minutes - b.minutes)
+            .slice(0, 2);
 
-        function getServiceKey(date) {
-            const day = date.getDay(); // 0 = Sun, 6 = Sat
-            if (day === 0) return 'sunday';
-            if (day === 6) return 'saturday';
-            return 'weekday';
-        }
+        const fenton = departures
+            .filter(d => d.directionKey === 'fenton')
+            .sort((a, b) => a.minutes - b.minutes)
+            .slice(0, 1);
 
-        function getHeadwayMinutesForNow() {
-            const now = new Date();
-            const hour = now.getHours(); // 0–23
-            const key = getServiceKey(now);
-            const rules = HEADWAY_CONFIG[key] || [];
+        const content = document.getElementById('content');
 
-            for (const rule of rules) {
-                if (hour >= rule.startHour && hour <= rule.endHour) {
-                    return rule.minutesBetween;
-                }
-            }
-
-            // fallback if nothing matched
-            return 22;
-        }
-
-        function getFrequencyLabel() {
-            const now = new Date();
-            const key = getServiceKey(now);
-            const minutes = getHeadwayMinutesForNow();
-            const rounded = Math.round(minutes);
-
-            if (key === 'weekday') {
-                return `Typically every ~${rounded} minutes (weekday schedule)`;
-            } else if (key === 'saturday') {
-                return `Typically every ~${rounded} minutes (Saturday schedule)`;
-            } else {
-                return `Typically every ~${rounded} minutes (Sunday schedule)`;
-            }
-        }
-
-        // -----------------------------
-        // Rendering
-        // -----------------------------
-        function renderDepartures(departures) {
-            const container = document.getElementById('departures');
-            if (!container) return;
-
-            if (!departures || departures.length === 0) {
-                container.innerHTML = '<div class="loading">No departures</div>';
-                return;
-            }
-
-            const freqLabel = getFrequencyLabel();
-
-            container.innerHTML = departures.map(dep => `
-                <div class="departure">
-                    <div class="departure-top">
-                        <div class="destination">${dep.directionLabel}</div>
-                        <div class="time-info">
-                            <div class="minutes">${dep.minutes} min</div>
+        // Build HTML
+        const fashionRow = `
+            <div class="group">
+                <div class="destination">FASHION VALLEY</div>
+                <div class="row">
+                    ${fashion.map(dep => `
+                        <div class="time-block">
+                            <div class="minutes">
+                                ${dep.minutes}<span class="min-label">min</span>
+                            </div>
                             <div class="clock">${dep.time}</div>
                         </div>
-                    </div>
-                    <div class="freq">${freqLabel}</div>
+                    `).join('')}
                 </div>
-            `).join('');
+            </div>
+        `;
 
-            console.log('Rendered', departures.length, 'departures');
+        const fentonRow = `
+            <div class="group">
+                <div class="destination">FENTON PARKWAY</div>
+                <div class="row">
+                    ${fenton.map(dep => `
+                        <div class="time-block">
+                            <div class="minutes">
+                                ${dep.minutes}<span class="min-label">min</span>
+                            </div>
+                            <div class="clock">${dep.time}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        content.innerHTML = fashionRow + fentonRow;
+
+        // Banner text: use earliest Fashion Valley departure for now.
+        const banner = document.getElementById('connection-banner');
+        if (fashion.length > 0) {
+            banner.textContent =
+                `Catch the Green Line by ${fashion[0].time} for the 120 to Downtown`;
+        } else {
+            banner.textContent = 'Catch the Green Line for the 120 to Downtown';
         }
+    }
 
-        function showError(message) {
-            console.error(message);
-            const container = document.getElementById('departures');
-            const status = document.getElementById('status');
+    function updateBoard() {
+        const departures = getDemoDepartures();
+        renderBoard(departures);
+        updateLastUpdateTime();
+        document.getElementById('status').textContent = 'Demo mode (static data)';
+    }
 
-            if (container) {
-                container.innerHTML = `<div class="loading error">${message}</div>`;
-            }
-            if (status) {
-                status.textContent = 'Error';
-                status.classList.remove('status');
-                status.classList.add('error');
-            }
-        }
-
-        // -----------------------------
-        // Selection: 2 to Fashion, 1 to Fenton
-        // -----------------------------
-        function selectPreferredDepartures(allDepartures) {
-            const toFashion = allDepartures
-                .filter(d => d.directionKey === 'toFashionValley')
-                .sort((a, b) => a.minutes - b.minutes);
-
-            const toFenton = allDepartures
-                .filter(d => d.directionKey === 'toFenton')
-                .sort((a, b) => a.minutes - b.minutes);
-
-            const selected = [];
-            if (toFashion[0]) selected.push(toFashion[0]);
-            if (toFashion[1]) selected.push(toFashion[1]);
-            if (toFenton[0])  selected.push(toFenton[0]);
-
-            return selected;
-        }
-
-        // -----------------------------
-        // Demo data (no live API yet)
-        // -----------------------------
-        function getDemoDepartures() {
-            return [
-                {
-                    directionLabel: 'Fashion Valley',
-                    directionKey: 'toFashionValley',
-                    minutes: 3,
-                    time: formatTimeMinutesFromNow(3)
-                },
-                {
-                    directionLabel: 'Fenton Parkway',
-                    directionKey: 'toFenton',
-                    minutes: 7,
-                    time: formatTimeMinutesFromNow(7)
-                },
-                {
-                    directionLabel: 'Fashion Valley',
-                    directionKey: 'toFashionValley',
-                    minutes: 16,
-                    time: formatTimeMinutesFromNow(16)
-                }
-            ];
-        }
-
-        // -----------------------------
-        // Main update loop (demo mode)
-        // -----------------------------
-        function updateData() {
-            try {
-                const all = getDemoDepartures();
-                const selected = selectPreferredDepartures(all);
-                renderDepartures(selected);
-
-                const statusEl = document.getElementById('status');
-                if (statusEl) {
-                    statusEl.textContent = 'Demo mode (static data)';
-                    statusEl.classList.add('status');
-                }
-
-                updateLastUpdateTime();
-            } catch (err) {
-                showError('Something went wrong rendering departures.');
-            }
-        }
-
-        console.log('Starting app...');
-        updateData();
-        setInterval(updateData, UPDATE_INTERVAL);
-    </script>
+    updateBoard();
+    setInterval(updateBoard, UPDATE_INTERVAL);
+</script>
 </body>
 </html>
